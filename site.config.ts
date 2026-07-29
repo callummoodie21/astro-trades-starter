@@ -21,8 +21,23 @@ import type { SiteConfig } from './src/lib/config-types';
  *  components can check for them.
  */
 export const site: SiteConfig = {
-  /** No trailing slash. Update this before the first real deploy. */
-  url: 'https://calder.callummoodie.xyz',
+  /**
+   * The exact host this site is served from. No trailing slash.
+   *
+   * Not cosmetic. This builds the canonical tag, the sitemap, and the contact
+   * form's success redirect. Web3Forms' free plan only honours that redirect
+   * when it points at the same host the form was submitted from, so if this
+   * does not match the address bar character for character, visitors land on
+   * web3forms.com/success instead of your own /thanks/ page.
+   *
+   * Subdomains count as different hosts. `demo.example.com` and
+   * `calder.example.com` are not interchangeable here.
+   *
+   * Order of operations: set it to the `.pages.dev` URL while testing, then
+   * change it to the custom domain once that is attached, and redeploy. It has
+   * to follow wherever the site is actually being served from.
+   */
+  url: 'https://demo.callummoodie.xyz',
 
   /**
    * ⚠️ SET `enabled: false` FOR REAL CLIENT SITES.

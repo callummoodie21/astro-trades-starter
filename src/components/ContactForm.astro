@@ -48,7 +48,12 @@ const { contact, business, services } = site;
  * expected, not a bug. Test the redirect on the live domain, and make sure
  * `site.url` matches it exactly.
  */
-const redirectUrl = new URL('/thanks', Astro.site).href;
+/*
+ * Trailing slash is deliberate. Astro builds this page as `thanks/index.html`,
+ * so `/thanks` 308-redirects to `/thanks/`. Pointing at the final URL saves the
+ * browser a hop after an already-slow cross-origin form POST.
+ */
+const redirectUrl = new URL('/thanks/', Astro.site).href;
 
 const inputClass =
   'w-full rounded-lg border border-line bg-surface px-4 py-3 text-base text-ink transition-colors placeholder:text-muted/70 focus:border-primary';
