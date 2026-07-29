@@ -1,0 +1,16 @@
+# Normalise line endings to LF in the repository.
+#
+# This template gets duplicated per client and built on Linux (Cloudflare Pages
+# / Netlify) while being edited on Windows. Without this, every file shows up as
+# wholly rewritten the first time someone commits from a different OS.
+* text=auto eol=lf
+
+# Binary - never touch these.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.avif binary
+*.ico binary
+*.woff binary
+*.woff2 binary

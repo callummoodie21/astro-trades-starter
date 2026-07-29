@@ -1,0 +1,163 @@
+@import 'tailwindcss';
+
+/*
+ * ── How theming works ────────────────────────────────────────────────────────
+ *
+ * 1. `site.config.ts` holds the raw colour values.
+ * 2. `BaseLayout.astro` writes them into a `<style>` tag in the head as
+ *    `--brand-*` custom properties on `:root`.
+ * 3. The `@theme` block below points Tailwind's colour utilities at those
+ *    properties, so `bg-primary`, `text-accent-text`, `border-line` and friends
+ *    all resolve to whatever the config said.
+ *
+ * The win: components only ever name a *role* ("primary", "muted"), never a hex
+ * value. Re-skinning a client is a config edit, not a find-and-replace.
+ *
+ * The `:root` block after `@theme` holds fallbacks, so the site is still legible
+ * if the layout's injected style ever fails to render.
+ */
+
+@theme {
+  --color-primary: var(--brand-primary);
+  --color-primary-dark: var(--brand-primary-dark);
+  --color-primary-light: var(--brand-primary-light);
+
+  --color-accent: var(--brand-accent);
+  --color-accent-text: var(--brand-accent-text);
+  --color-accent-surface: var(--brand-accent-surface);
+  --color-accent-soft: var(--brand-accent-soft);
+
+  --color-ink: var(--brand-ink);
+  --color-muted: var(--brand-muted);
+  --color-surface: var(--brand-surface);
+  --color-surface-alt: var(--brand-surface-alt);
+  --color-line: var(--brand-line);
+
+  /*
+   * System font stack: renders instantly, costs zero network requests, and looks
+   * native on every device. A webfont would cost a round trip and a layout shift
+   * for very little gain on a site like this. Swap it here if a client insists.
+   */
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+:root {
+  --brand-primary: #0e3a47;
+  --brand-primary-dark: #082932;
+  --brand-primary-light: #17566a;
+  --brand-accent: #b87333;
+  --brand-accent-text: #8a5220;
+  --brand-accent-surface: #d08c46;
+  --brand-accent-soft: #f6eadc;
+  --brand-ink: #12212a;
+  --brand-muted: #4f626d;
+  --brand-surface: #ffffff;
+  --brand-surface-alt: #f3f6f7;
+  --brand-line: #dde4e7;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /*
+   * Anchor links land under the sticky header without this. Applied to anything
+   * with an id so every section behaves, including ones you add later.
+   */
+  [id] {
+    scroll-margin-top: 5.5rem;
+  }
+
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /*
+   * One visible, high-contrast focus ring for every interactive element. This is
+   * the single highest-value accessibility line in the file - without it the
+   * site is unusable by keyboard.
+   */
+  :focus-visible {
+    outline: 3px solid var(--color-accent-surface);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/*
+ * Custom utilities. Tailwind v4 lets you define these in CSS with `@utility`,
+ * which replaces the old `tailwind.config.js` plugin dance.
+ */
+
+/** Centred page gutter. `clamp` handles all breakpoints without a media query. */
+@utility wrap {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 72rem;
+  padding-inline: clamp(1.25rem, 4vw, 2rem);
+}
+
+/** Consistent vertical rhythm between page sections. */
+@utility section-y {
+  padding-block: clamp(3.5rem, 8vw, 6rem);
+}
+
+/** Screen-reader-only text that becomes visible on focus (the skip link). */
+@utility sr-focusable {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+
+  &:focus {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0.75rem 1.25rem;
+    overflow: visible;
+    clip-path: none;
+    background-color: var(--color-primary);
+    color: #fff;
+    border-radius: 0.5rem;
+    z-index: 100;
+  }
+}

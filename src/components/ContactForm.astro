@@ -1,0 +1,299 @@
+---
+import { site } from '@config';
+import { telHref, mailHref, web3formsConfigured } from '@lib/site';
+import Icon from './Icon.astro';
+import Button from './Button.astro';
+
+/**
+ * Contact section: enquiry form on the left, the ways to actually reach a human
+ * on the right.
+ *
+ * ── Why the form needs no JavaScript ─────────────────────────────────────────
+ *
+ * It's a plain `<form method="POST">` pointing at Web3Forms. The browser does
+ * the submit, Web3Forms emails the enquiry on, then redirects to `/thanks`. No
+ * fetch, no bundle, no spinner state to get wrong - and it still works if a
+ * script fails to load on a bad 4G connection outside somebody's house.
+ *
+ * The cost is a full page navigation on submit, which is why `/thanks` exists
+ * and is styled to look like a deliberate destination.
+ *
+ * ── The placeholder guard ────────────────────────────────────────────────────
+ *
+ * If `contact.web3formsKey` is still the placeholder, the whole form is wrapped
+ * in a disabled `<fieldset>` and a loud warning renders above it. A disabled
+ * fieldset can't be submitted by clicking *or* by pressing Enter in a field, so
+ * there is no path to a form that looks like it works and quietly bins every
+ * enquiry. That failure mode costs a real client real money, so it's worth the
+ * few extra lines.
+ */
+
+const { contact, business, services } = site;
+
+/**
+ * Built from `site.url`, so it follows the config to whatever domain you deploy
+ * on.
+ *
+ * ⚠️ Web3Forms' free plan only honours `redirect` when the target is on the
+ * SAME DOMAIN the form was submitted from - cross-domain redirects need a paid
+ * plan. When they don't match, Web3Forms silently ignores this field and sends
+ * the visitor to its own success page instead.
+ *
+ * In practice that means the redirect only works on the real production domain:
+ *   - localhost         → different domain (and `redirect` must be https://) → falls back
+ *   - *.pages.dev preview → different domain from `site.url` → falls back
+ *   - the domain in `site.url` → works
+ *
+ * So "web3forms.com/success" during local testing is
+ * expected, not a bug. Test the redirect on the live domain, and make sure
+ * `site.url` matches it exactly.
+ */
+const redirectUrl = new URL('/thanks', Astro.site).href;
+
+const inputClass =
+  'w-full rounded-lg border border-line bg-surface px-4 py-3 text-base text-ink transition-colors placeholder:text-muted/70 focus:border-primary';
+
+const labelClass = 'block text-sm font-semibold text-ink';
+---
+
+<section id="contact" class="section-y bg-surface" aria-labelledby="contact-title">
+  <div class="wrap">
+    <div class="max-w-2xl">
+      <h2
+        id="contact-title"
+        class="text-3xl font-bold tracking-tight text-primary sm:text-4xl"
+      >
+        {contact.title}
+      </h2>
+      <p class="mt-4 text-lg leading-relaxed text-muted">{contact.intro}</p>
+    </div>
+
+    <div class="mt-12 grid gap-12 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
+      <!-- ── Form ──────────────────────────────────────────────────────── -->
+      <div>
+        {
+          !web3formsConfigured && (
+            <p
+              class="mb-6 flex items-start gap-3 rounded-lg border-2 border-accent bg-accent-soft p-4 text-sm text-ink"
+              role="status"
+            >
+              <Icon
+                name="shield"
+                class="mt-0.5 h-5 w-5 shrink-0 text-accent-text"
+                strokeWidth={2}
+              />
+              <span>
+                <strong class="font-semibold">This form is not connected yet.</strong>{' '}
+                Add your Web3Forms access key to <code>site.config.ts</code> (
+                <code>contact.web3formsKey</code>) to enable it. Until then it is
+                disabled on purpose, so no enquiry can be lost.
+              </span>
+            </p>
+          )
+        }
+
+        <form action="https://api.web3forms.com/submit" method="POST" class="w-full">
+          <!-- Web3Forms control fields. None of these are shown to the visitor. -->
+          <input type="hidden" name="access_key" value={contact.web3formsKey} />
+          <input type="hidden" name="subject" value={contact.emailSubject} />
+          <input type="hidden" name="from_name" value={business.legalName} />
+          <input type="hidden" name="redirect" value={redirectUrl} />
+
+          <!--
+            Honeypot. Bots fill in every field they find; humans never see this
+            one. `tabindex="-1"` keeps it out of the keyboard order and
+            `aria-hidden` keeps it out of screen readers, so it costs real users
+            nothing.
+          -->
+          <input
+            type="checkbox"
+            name="botcheck"
+            class="hidden"
+            style="display:none"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+          />
+
+          <fieldset disabled={!web3formsConfigured} class="disabled:opacity-60">
+            <legend class="sr-only">Enquiry details</legend>
+
+            <div class="grid gap-5 sm:grid-cols-2">
+              <div class="sm:col-span-2">
+                <label for="name" class={labelClass}>
+                  Your name <span class="text-accent-text">*</span>
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  required
+                  autocomplete="name"
+                  class={`mt-2 ${inputClass}`}
+                />
+              </div>
+
+              <div>
+                <label for="phone" class={labelClass}>
+                  Phone number <span class="text-accent-text">*</span>
+                </label>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  inputmode="tel"
+                  required
+                  autocomplete="tel"
+                  aria-describedby="phone-hint"
+                  class={`mt-2 ${inputClass}`}
+                />
+                <p id="phone-hint" class="mt-2 text-xs text-muted">
+                  Quickest way for us to get back to you.
+                </p>
+              </div>
+
+              <div>
+                <label for="email" class={labelClass}>Email</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  class={`mt-2 ${inputClass}`}
+                />
+              </div>
+
+              <div>
+                <label for="postcode" class={labelClass}>Postcode</label>
+                <input
+                  id="postcode"
+                  name="postcode"
+                  type="text"
+                  autocomplete="postal-code"
+                  autocapitalize="characters"
+                  class={`mt-2 ${inputClass}`}
+                />
+              </div>
+
+              <div>
+                <label for="service" class={labelClass}>What do you need?</label>
+                <select
+                  id="service"
+                  name="service"
+                  class={`mt-2 ${inputClass}`}
+                >
+                  {
+                    /* Options come straight from the services list, so adding a
+                       service to the config adds it here too. */
+                    services.items.map((service) => (
+                      <option value={service.title}>{service.title}</option>
+                    ))
+                  }
+                  <option value="Something else">Something else</option>
+                </select>
+              </div>
+
+              <div class="sm:col-span-2">
+                <label for="message" class={labelClass}>
+                  How can we help? <span class="text-accent-text">*</span>
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows="5"
+                  required
+                  class={`mt-2 ${inputClass} resize-y`}></textarea>
+              </div>
+            </div>
+
+            <div class="mt-7 flex flex-col gap-4 sm:flex-row sm:items-center">
+              <Button
+                type="submit"
+                variant="primary"
+                icon="arrow-right"
+                block
+                class="sm:shrink-0"
+              >
+                Send enquiry
+              </Button>
+              <p class="text-xs leading-relaxed text-muted">
+                We only use your details to reply to this enquiry.
+                <span class="text-accent-text">*</span> marks a required field.
+              </p>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+
+      <!-- ── Direct contact details ────────────────────────────────────── -->
+      <div class="flex flex-col gap-6">
+        <div class="rounded-xl bg-primary p-7 text-white">
+          <h3 class="text-lg font-semibold">Rather just phone?</h3>
+          <p class="mt-2 text-sm leading-relaxed text-white/85">
+            We answer it ourselves - no menus, no call centre.
+          </p>
+          <a
+            href={telHref}
+            class="mt-5 inline-flex items-center gap-2.5 text-2xl font-bold tracking-tight text-white underline-offset-4 hover:underline sm:text-3xl"
+            aria-label={`Call ${business.name} on ${business.phone.display}`}
+          >
+            <Icon
+              name="phone"
+              class="h-6 w-6 shrink-0 text-accent-surface"
+              strokeWidth={2}
+            />
+            {business.phone.display}
+          </a>
+        </div>
+
+        <dl class="flex flex-col gap-5 rounded-xl border border-line p-7">
+          <div class="flex items-start gap-3.5">
+            <dt class="shrink-0 pt-0.5">
+              <Icon name="mail" class="h-5 w-5 text-accent-text" />
+              <span class="sr-only">Email</span>
+            </dt>
+            <dd class="min-w-0 text-sm">
+              <a
+                href={mailHref}
+                class="break-words text-ink underline-offset-4 hover:text-accent-text hover:underline"
+              >
+                {business.email}
+              </a>
+            </dd>
+          </div>
+
+          <div class="flex items-start gap-3.5">
+            <dt class="shrink-0 pt-0.5">
+              <Icon name="map-pin" class="h-5 w-5 text-accent-text" />
+              <span class="sr-only">Address</span>
+            </dt>
+            <dd class="text-sm not-italic text-ink">
+              <address class="not-italic">
+                {business.address.line1}<br />
+                {business.address.town}<br />
+                {business.address.postcode}
+              </address>
+            </dd>
+          </div>
+
+          <div class="flex items-start gap-3.5">
+            <dt class="shrink-0 pt-0.5">
+              <Icon name="clock" class="h-5 w-5 text-accent-text" />
+              <span class="sr-only">Opening hours</span>
+            </dt>
+            <dd class="flex flex-col gap-1 text-sm text-ink">
+              {
+                business.hours.map((slot) => (
+                  <span>
+                    <span class="font-medium">{slot.days}</span>
+                    <span class="text-muted"> - {slot.hours}</span>
+                  </span>
+                ))
+              }
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>

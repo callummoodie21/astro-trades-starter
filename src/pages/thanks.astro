@@ -1,0 +1,66 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Header from '@components/Header.astro';
+import Footer from '@components/Footer.astro';
+import Button from '@components/Button.astro';
+import Icon from '@components/Icon.astro';
+import { site } from '@config';
+import { telHref } from '@lib/site';
+
+/**
+ * Where Web3Forms sends people after a successful submit.
+ *
+ * Worth styling properly rather than leaving it on Web3Forms' generic success
+ * page: this is the moment the customer decides whether the business looks
+ * organised. It also repeats the phone number, because someone who has just
+ * submitted an urgent enquiry may well decide to phone anyway.
+ *
+ * `noindex` keeps it out of search results - it's a dead end for anyone who
+ * hasn't just submitted the form.
+ */
+
+const { business } = site;
+---
+
+<BaseLayout
+  title={`Thanks - ${business.legalName}`}
+  description="Your enquiry has been received."
+  noindex
+>
+  <Header />
+
+  <main id="main" class="section-y">
+    <div class="wrap max-w-xl text-center">
+      <span
+        class="mx-auto mb-7 inline-flex h-16 w-16 items-center justify-center rounded-full bg-accent-soft text-accent-text"
+        aria-hidden="true"
+      >
+        <Icon name="check" class="h-8 w-8" strokeWidth={2.5} />
+      </span>
+
+      <h1 class="text-3xl font-bold tracking-tight text-primary sm:text-4xl">
+        Thanks - we've got that
+      </h1>
+
+      <p class="mt-5 text-lg leading-relaxed text-muted">
+        Your enquiry is with us and we'll come back to you the same working day.
+        If it's urgent, phone us instead and you'll get a person straight away.
+      </p>
+
+      <div class="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+        <Button
+          href={telHref}
+          variant="accent"
+          icon="phone"
+          block
+          aria-label={`Call ${business.name} on ${business.phone.display}`}
+        >
+          {business.phone.display}
+        </Button>
+        <Button href="/" variant="outline" block>Back to the site</Button>
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>

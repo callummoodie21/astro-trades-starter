@@ -1,0 +1,17 @@
+# Cloudflare Pages and Netlify both read this file from the site root.
+# Anything in `public/` is copied to the root of `dist/`, so it just works on
+# both with no dashboard settings and no netlify.toml.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: geolocation=(), camera=(), microphone=(), interest-cohort=()
+  # `form-action` has to allow Web3Forms - that's where the contact form POSTs.
+  # `unsafe-inline` is needed for the theme <style> and the mobile-nav script,
+  # both of which are generated at build time from code in this repo.
+  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; form-action 'self' https://api.web3forms.com; frame-ancestors 'none'; base-uri 'self'
+
+# Astro fingerprints these filenames, so they can be cached forever.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable

@@ -1,0 +1,82 @@
+---
+import { site } from '@config';
+import { telHref, mailHref } from '@lib/site';
+import Icon from './Icon.astro';
+
+/**
+ * Footer: contact details repeated (people scroll to the bottom looking for a
+ * phone number), the full service-area list for local SEO, and the small print.
+ *
+ * The service-area list is genuinely useful rather than keyword stuffing - it
+ * answers "do they even come out to Eaglesham?", which is a real question a
+ * customer has before they'll phone.
+ */
+
+const { business, nav, footer } = site;
+const year = new Date().getFullYear();
+---
+
+<footer class="bg-primary-dark text-white">
+  <div class="wrap grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="lg:col-span-2">
+      <p class="text-xl font-bold tracking-tight">{business.legalName}</p>
+      <p class="mt-2 max-w-sm text-sm leading-relaxed text-white/70">
+        {business.tagline}. Based in {business.address.region}.
+      </p>
+
+      <a
+        href={telHref}
+        class="mt-6 inline-flex items-center gap-2.5 rounded-lg bg-accent-surface px-5 py-3 font-semibold text-ink transition-colors hover:bg-accent"
+        aria-label={`Call ${business.name} on ${business.phone.display}`}
+      >
+        <Icon name="phone" class="h-5 w-5 shrink-0" strokeWidth={2} />
+        {business.phone.display}
+      </a>
+
+      <p class="mt-5 text-sm">
+        <a
+          href={mailHref}
+          class="text-white/80 underline-offset-4 hover:text-white hover:underline"
+        >
+          {business.email}
+        </a>
+      </p>
+    </div>
+
+    <nav aria-labelledby="footer-nav-title">
+      <h2 id="footer-nav-title" class="text-sm font-semibold tracking-wide uppercase">
+        Pages
+      </h2>
+      <ul class="mt-4 flex flex-col gap-2.5">
+        {
+          nav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class="text-sm text-white/75 underline-offset-4 hover:text-white hover:underline"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div>
+      <h2 class="text-sm font-semibold tracking-wide uppercase">Areas we cover</h2>
+      <p class="mt-4 text-sm leading-relaxed text-white/75">
+        {business.serviceAreas.join(' · ')}
+      </p>
+    </div>
+  </div>
+
+  <div class="border-t border-white/10">
+    <div
+      class="wrap flex flex-col gap-3 py-6 text-xs text-white/60 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p>© {year} {business.legalName}. All rights reserved.</p>
+      {footer.note && <p class="text-white/50">{footer.note}</p>}
+    </div>
+  </div>
+</footer>

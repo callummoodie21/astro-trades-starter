@@ -1,0 +1,38 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Header from '@components/Header.astro';
+import Hero from '@components/Hero.astro';
+import Services from '@components/Services.astro';
+import Reviews from '@components/Reviews.astro';
+import About from '@components/About.astro';
+import ContactForm from '@components/ContactForm.astro';
+import Footer from '@components/Footer.astro';
+
+/**
+ * The whole site.
+ *
+ * Notice there is no content in this file - only composition. Every word, every
+ * colour and every phone number lives in `site.config.ts`. Reordering the page
+ * for a client who wants reviews above services is a matter of moving one line
+ * here; changing what those sections say never touches this file at all.
+ *
+ * If a client needs a second page later (a "Prices" or "Areas we cover" page),
+ * add `src/pages/prices.astro`, wrap it in the same `BaseLayout`, and add an
+ * entry to `nav` in the config. Astro routes by filename - there is no router
+ * to configure.
+ */
+---
+
+<BaseLayout>
+  <Header />
+
+  <main id="main">
+    <Hero />
+    <Services />
+    <Reviews />
+    <About />
+    <ContactForm />
+  </main>
+
+  <Footer />
+</BaseLayout>

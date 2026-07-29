@@ -1,0 +1,138 @@
+---
+import { site } from '@config';
+import { telHref } from '@lib/site';
+import Icon from './Icon.astro';
+
+/**
+ * Sticky header: business name, anchor nav, and a `tel:` call button that is
+ * visible at every breakpoint.
+ *
+ * ── The mobile menu, and why it's built this way ─────────────────────────────
+ *
+ * It's a native `<details>`/`<summary>` disclosure. That gives us, for free and
+ * with zero JavaScript: a real button role, correct `aria-expanded` state,
+ * keyboard operation with Enter and Space, and correct screen-reader
+ * announcement. A hand-rolled `<div onclick>` hamburger has to reimplement all
+ * four and usually reimplements none.
+ *
+ * The ~15 lines of inline script at the bottom are pure progressive
+ * enhancement - they close the menu after you tap a link and on Escape. Turn
+ * JavaScript off and the menu still opens, still closes, still navigates. That
+ * is the bar an "island" has to clear before it earns its place on a site like
+ * this.
+ */
+
+const { business, nav } = site;
+---
+
+<header
+  class="sticky top-0 z-50 border-b border-line bg-surface/95 backdrop-blur-sm"
+>
+  <div class="wrap relative flex items-center justify-between gap-4 py-3">
+    <!-- Brand -->
+    <a
+      href="/"
+      class="group flex min-w-0 flex-col leading-tight"
+      aria-label={`${business.legalName} - home`}
+    >
+      <span class="truncate text-lg font-bold tracking-tight text-primary sm:text-xl">
+        {business.name}
+      </span>
+      <span class="truncate text-xs text-muted sm:text-sm">
+        {business.tagline}
+      </span>
+    </a>
+
+    <!-- Desktop nav -->
+    <nav aria-label="Main" class="hidden md:block">
+      <ul class="flex items-center gap-7">
+        {
+          nav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class="text-sm font-medium text-ink underline-offset-4 hover:text-accent-text hover:underline"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="flex shrink-0 items-center gap-2">
+      <!--
+        The call button. Calling is the conversion on a trades site, so it is the
+        one control that never collapses into a menu at any screen size.
+        On mobile it shows the icon and the word "Call"; from `sm` up it shows
+        the full number, because a visible number is itself a trust signal.
+      -->
+      <a
+        href={telHref}
+        class="inline-flex items-center gap-2 rounded-lg bg-accent-surface px-3.5 py-2.5 text-sm font-semibold text-ink transition-colors hover:bg-accent sm:px-5"
+        aria-label={`Call ${business.name} on ${business.phone.display}`}
+      >
+        <Icon name="phone" class="h-4 w-4 shrink-0" strokeWidth={2} />
+        <span class="sm:hidden">Call</span>
+        <span class="hidden sm:inline">{business.phone.display}</span>
+      </a>
+
+      <!-- Mobile menu -->
+      <details class="group md:hidden" data-mobile-nav>
+        <summary
+          class="flex cursor-pointer list-none items-center justify-center rounded-lg border border-line p-2.5 text-primary [&::-webkit-details-marker]:hidden"
+        >
+          <Icon name="menu" class="h-5 w-5 group-open:hidden" strokeWidth={2} />
+          <Icon
+            name="close"
+            class="hidden h-5 w-5 group-open:block"
+            strokeWidth={2}
+          />
+          <span class="sr-only">Menu</span>
+        </summary>
+
+        <nav
+          aria-label="Mobile"
+          class="absolute inset-x-0 top-full border-b border-line bg-surface shadow-lg"
+        >
+          <ul class="wrap flex flex-col py-2">
+            {
+              nav.map((item) => (
+                <li class="border-b border-line/70 last:border-0">
+                  <a
+                    href={item.href}
+                    class="block py-3.5 text-base font-medium text-ink"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>
+
+<script is:inline>
+  /*
+   * Progressive enhancement only. `is:inline` keeps this in the HTML rather than
+   * emitting a separate JS file - for ~300 bytes, a network request would cost
+   * more than the code.
+   */
+  document.querySelectorAll('[data-mobile-nav]').forEach((menu) => {
+    menu.addEventListener('click', (event) => {
+      if (event.target.closest('a')) menu.open = false;
+    });
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    document.querySelectorAll('[data-mobile-nav][open]').forEach((menu) => {
+      menu.open = false;
+      menu.querySelector('summary')?.focus();
+    });
+  });
+</script>

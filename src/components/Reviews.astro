@@ -1,0 +1,75 @@
+---
+import { site } from '@config';
+import Icon from './Icon.astro';
+import SectionDivider from './SectionDivider.astro';
+
+/**
+ * Reviews, on a dark band to break up the page.
+ *
+ * The cards themselves are light. That's a deliberate accessibility choice as
+ * much as a visual one - putting light cards on the dark band means every piece
+ * of text inside them uses the same verified light-mode colour pairs as the rest
+ * of the site, instead of needing a second set of on-dark shades that all have
+ * to be re-checked for contrast.
+ *
+ * The area name under each review does real work here: "Calderwood",
+ * "Stewartfield" and so on tell a local reader that these are their actual
+ * neighbours, which is worth more than any number of five-star badges.
+ *
+ * `columns` rather than `grid` so uneven quote lengths pack tightly instead of
+ * leaving every card as tall as the longest one in its row.
+ */
+
+const { reviews } = site;
+---
+
+<section
+  id="reviews"
+  class="section-y bg-primary text-white"
+  aria-labelledby="reviews-title"
+>
+  <div class="wrap">
+    <div class="mx-auto max-w-2xl text-center">
+      <h2 id="reviews-title" class="text-3xl font-bold tracking-tight sm:text-4xl">
+        {reviews.title}
+      </h2>
+      <p class="mt-4 text-lg leading-relaxed text-white/85">{reviews.intro}</p>
+    </div>
+
+    <SectionDivider class="mt-10" onDark />
+
+    <ul class="mt-10 gap-6 sm:columns-2 lg:columns-3">
+      {
+        reviews.items.map((review) => {
+          const rating = review.rating ?? 5;
+          return (
+            <li class="mb-6 break-inside-avoid rounded-xl bg-surface p-6 text-ink shadow-sm">
+              <p
+                class="flex gap-0.5 text-accent"
+                role="img"
+                aria-label={`Rated ${rating} out of 5`}
+              >
+                {Array.from({ length: 5 }, (_, i) => (
+                  <Icon
+                    name="star"
+                    class={i < rating ? 'h-4.5 w-4.5' : 'h-4.5 w-4.5 text-line'}
+                    filled
+                  />
+                ))}
+              </p>
+
+              <blockquote class="mt-4">
+                <p class="leading-relaxed text-ink">{review.quote}</p>
+              </blockquote>
+
+              <footer class="mt-5 border-t border-line pt-4 text-sm">
+                <span class="font-semibold text-ink">{review.name}</span>
+                <span class="text-muted"> - {review.area}</span>
+              </footer>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</section>

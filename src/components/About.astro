@@ -1,0 +1,87 @@
+---
+import { site } from '@config';
+import Icon from './Icon.astro';
+
+/**
+ * About: copy on one side, credentials and headline numbers on the other.
+ *
+ * The right-hand panel is the fallback when there's no photo yet - and it tends
+ * to convert better than a stock photo anyway, because "25+ years" and "Gas Safe
+ * registered" are the two things a customer is actually trying to find out.
+ * Set `about.image` in the config and the photo takes the top of that column
+ * with the stats beneath it.
+ */
+
+const { about, business } = site;
+---
+
+<section id="about" class="section-y bg-surface-alt" aria-labelledby="about-title">
+  <div class="wrap grid items-start gap-12 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
+    <div>
+      <h2
+        id="about-title"
+        class="text-3xl font-bold tracking-tight text-primary sm:text-4xl"
+      >
+        {about.title}
+      </h2>
+
+      <div class="mt-6 flex flex-col gap-5">
+        {
+          about.body.map((paragraph) => (
+            <p class="text-lg leading-relaxed text-muted">{paragraph}</p>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-6">
+      {
+        about.image && (
+          <img
+            src={about.image}
+            alt={about.imageAlt ?? ''}
+            class="aspect-[4/3] w-full rounded-xl object-cover"
+            loading="lazy"
+            decoding="async"
+          />
+        )
+      }
+
+      <!--
+        Headline numbers. `<dl>` is the right element: each stat is genuinely a
+        term and its description, and it reads correctly to a screen reader.
+        The value comes first visually, so `flex-col-reverse` keeps the DOM order
+        (dt then dd) correct while the big number still sits on top.
+      -->
+      <dl class="grid grid-cols-3 gap-4 rounded-xl border border-line bg-surface p-6">
+        {
+          about.highlights.map((item) => (
+            <div class="flex flex-col-reverse gap-1 text-center">
+              <dt class="text-xs leading-snug text-muted">{item.label}</dt>
+              <dd class="text-2xl font-bold text-primary sm:text-3xl">
+                {item.value}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      {
+        business.credentials && business.credentials.length > 0 && (
+          <ul class="flex flex-col gap-3 rounded-xl border border-line bg-surface p-6">
+            {business.credentials.map((credential) => (
+              <li class="flex items-start gap-3 text-sm text-ink">
+                <Icon
+                  name="check-circle"
+                  class="mt-px h-5 w-5 shrink-0 text-accent-text"
+                  strokeWidth={2}
+                />
+                <span>{credential}</span>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </div>
+</section>

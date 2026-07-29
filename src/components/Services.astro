@@ -1,0 +1,71 @@
+---
+import { site } from '@config';
+import Icon from './Icon.astro';
+import SectionDivider from './SectionDivider.astro';
+
+/**
+ * Services grid, driven entirely by `services.items` in the config.
+ *
+ * Adding a fifth service is one object in the array - the grid, the icons and
+ * the contact form's dropdown all pick it up. That's the payoff for putting the
+ * content in config rather than in the markup.
+ *
+ * Heading order note: the page's only `<h1>` is in the hero, so every section
+ * title here is an `<h2>` and every card title an `<h3>`. Skipping a level (an
+ * `<h2>` straight to an `<h4>` because it looked the right size) is the most
+ * common heading-order failure - pick the level for the structure and set the
+ * size with a class.
+ */
+
+const { services } = site;
+---
+
+<section id="services" class="section-y bg-surface" aria-labelledby="services-title">
+  <div class="wrap">
+    <div class="mx-auto max-w-2xl text-center">
+      <h2
+        id="services-title"
+        class="text-3xl font-bold tracking-tight text-primary sm:text-4xl"
+      >
+        {services.title}
+      </h2>
+      <p class="mt-4 text-lg leading-relaxed text-muted">{services.intro}</p>
+    </div>
+
+    <SectionDivider class="mt-10" />
+
+    <ul class="mt-10 grid gap-6 sm:grid-cols-2 lg:gap-7">
+      {
+        services.items.map((service) => (
+          <li class="flex h-full flex-col rounded-xl border border-line bg-surface-alt p-7 transition-colors hover:border-accent">
+            <span
+              class="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white"
+              aria-hidden="true"
+            >
+              <Icon name={service.icon} class="h-6 w-6" />
+            </span>
+
+            <h3 class="text-xl font-semibold text-ink">{service.title}</h3>
+
+            <p class="mt-3 leading-relaxed text-muted">{service.description}</p>
+
+            {service.points && (
+              <ul class="mt-5 flex flex-col gap-2 border-t border-line pt-5">
+                {service.points.map((point) => (
+                  <li class="flex items-start gap-2.5 text-sm text-ink">
+                    <Icon
+                      name="check"
+                      class="mt-0.5 h-4 w-4 shrink-0 text-accent-text"
+                      strokeWidth={2.5}
+                    />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

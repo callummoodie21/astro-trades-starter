@@ -1,0 +1,141 @@
+---
+import { site } from '@config';
+import { resolveHref } from '@lib/site';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+
+/**
+ * The hero.
+ *
+ * It's built to look finished with no photography at all - a colour-blocked
+ * panel in the client's brand plus the motif pattern. That's deliberate: most
+ * small trades have no usable photos on day one, and a hero that depends on a
+ * good photo will look broken until one arrives.
+ *
+ * Set `hero.image` in the config and it switches to a photo background with a
+ * gradient scrim, which keeps the headline above 4.5:1 no matter how bright the
+ * image is. The pattern stays as the fallback.
+ */
+
+const { hero, business } = site;
+
+const areas = business.serviceAreas.slice(1, 4).join(', ');
+const primaryHref = resolveHref(hero.primaryCta.href);
+---
+
+<section class="relative isolate overflow-hidden bg-primary text-white">
+  {
+    hero.image ? (
+      <>
+        <img
+          src={hero.image}
+          alt={hero.imageAlt ?? ''}
+          class="absolute inset-0 -z-20 h-full w-full object-cover"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
+        <div
+          class="absolute inset-0 -z-10 bg-gradient-to-br from-primary/95 via-primary/85 to-primary/70"
+          aria-hidden="true"
+        />
+      </>
+    ) : (
+      <svg
+        class="absolute inset-0 -z-10 h-full w-full text-accent opacity-[0.18]"
+        aria-hidden="true"
+      >
+        <defs>
+          <pattern
+            id="hero-motif"
+            width="56"
+            height="56"
+            patternUnits="userSpaceOnUse"
+            patternTransform="rotate(45)"
+          >
+            <path d="M0 28h56" stroke="currentColor" stroke-width="1.5" fill="none" />
+            <circle
+              cx="28"
+              cy="28"
+              r="3.5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#hero-motif)" />
+      </svg>
+    )
+  }
+
+  <div class="wrap section-y relative">
+    <div class="max-w-2xl">
+      {
+        business.credentials?.[0] && (
+          <p class="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-medium text-white ring-1 ring-white/20">
+            <Icon name="shield" class="h-4 w-4 text-accent-surface" strokeWidth={2} />
+            {business.credentials[0]}
+          </p>
+        )
+      }
+
+      <h1 class="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+        {hero.headline}
+      </h1>
+
+      <p class="mt-6 text-lg leading-relaxed text-white/90 sm:text-xl">
+        {hero.subheadline}
+      </p>
+
+      <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <Button
+          href={primaryHref}
+          variant="accent"
+          icon={hero.primaryCta.href === 'tel' ? 'phone' : undefined}
+          block
+          aria-label={hero.primaryCta.href === 'tel'
+            ? `Call ${business.name} on ${business.phone.display}`
+            : undefined}
+        >
+          {
+            hero.primaryCta.href === 'tel'
+              ? `${hero.primaryCta.label} - ${business.phone.display}`
+              : hero.primaryCta.label
+          }
+        </Button>
+
+        {
+          hero.secondaryCta && (
+            <Button
+              href={resolveHref(hero.secondaryCta.href)}
+              variant="outline-light"
+              block
+            >
+              {hero.secondaryCta.label}
+            </Button>
+          )
+        }
+      </div>
+
+      <ul class="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-7">
+        {
+          hero.points.map((point) => (
+            <li class="flex items-start gap-2.5 text-base text-white/90">
+              <Icon
+                name="check"
+                class="mt-0.5 h-5 w-5 shrink-0 text-accent-surface"
+                strokeWidth={2.5}
+              />
+              <span>{point}</span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="mt-9 border-t border-white/15 pt-6 text-sm text-white/70">
+        Covering {business.address.town}, {areas} and the surrounding villages.
+      </p>
+    </div>
+  </div>
+</section>

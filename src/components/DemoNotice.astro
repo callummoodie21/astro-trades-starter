@@ -1,0 +1,36 @@
+---
+import { site } from '@config';
+import { isDemo } from '@lib/site';
+
+/**
+ * The visible half of demo mode. The `noindex` in the layout stops search
+ * engines; this stops people.
+ *
+ * It sits above the header and scrolls away rather than sticking, so it's
+ * unmissable on load but doesn't eat viewport for the rest of the visit.
+ *
+ * Worth being straightforwardly honest in the wording. A prospect who reads
+ * "fictional business, here's what a finished job looks like" understands
+ * exactly what they're looking at - which is more persuasive than a site that
+ * leaves them wondering whether Calder & Son is a real client.
+ */
+---
+
+{
+  isDemo && (
+    <div class="bg-ink text-white">
+      {/*
+        Inline rather than flex: as flex items the label and the notice wrap as
+        separate lines, which costs three lines on a narrow phone. Flowing them
+        as one paragraph gets it down to two.
+      */}
+      <p class="wrap py-2.5 text-center text-xs leading-relaxed sm:text-sm">
+        <span class="font-semibold tracking-wide text-accent-surface uppercase">
+          Demo
+        </span>
+        <span class="mx-2 text-white/30" aria-hidden="true">·</span>
+        <span class="text-white/85">{site.demo.notice}</span>
+      </p>
+    </div>
+  )
+}

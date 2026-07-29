@@ -1,0 +1,75 @@
+---
+import Icon from './Icon.astro';
+import type { IconName } from '@lib/config-types';
+
+/**
+ * One place that decides what a button looks like.
+ *
+ * Renders an `<a>` when given an href and a `<button>` otherwise, so the markup
+ * is always semantically correct - links navigate, buttons act. Getting this
+ * wrong is the second most common accessibility bug after missing focus rings.
+ *
+ * Every variant is a colour pair that clears WCAG AA (4.5:1) for its text.
+ */
+
+type Variant = 'primary' | 'accent' | 'outline' | 'outline-light';
+
+interface Props {
+  href?: string;
+  variant?: Variant;
+  icon?: IconName;
+  /** Full width on mobile, auto from `sm` up. The default for stacked CTAs. */
+  block?: boolean;
+  type?: 'button' | 'submit';
+  class?: string;
+  'aria-label'?: string;
+  disabled?: boolean;
+}
+
+const {
+  href,
+  variant = 'primary',
+  icon,
+  block = false,
+  type = 'button',
+  class: className = '',
+  disabled = false,
+  ...rest
+} = Astro.props;
+
+const base =
+  'inline-flex items-center justify-center gap-2.5 rounded-lg px-6 py-3.5 text-base font-semibold leading-tight transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-60';
+
+const variants: Record<Variant, string> = {
+  // White on petrol - ~11:1.
+  primary: 'bg-primary text-white hover:bg-primary-dark',
+  // Dark ink on light copper - ~5.9:1. White would fail here, hence ink.
+  accent: 'bg-accent-surface text-ink hover:bg-accent',
+  outline: 'border-2 border-primary text-primary hover:bg-primary hover:text-white',
+  'outline-light':
+    'border-2 border-white/70 text-white hover:bg-white hover:text-primary',
+};
+
+const classes = [
+  base,
+  variants[variant],
+  block ? 'w-full sm:w-auto' : '',
+  className,
+]
+  .filter(Boolean)
+  .join(' ');
+---
+
+{
+  href ? (
+    <a href={href} class={classes} {...rest}>
+      {icon && <Icon name={icon} class="h-5 w-5 shrink-0" strokeWidth={2} />}
+      <slot />
+    </a>
+  ) : (
+    <button type={type} class={classes} disabled={disabled} {...rest}>
+      {icon && <Icon name={icon} class="h-5 w-5 shrink-0" strokeWidth={2} />}
+      <slot />
+    </button>
+  )
+}

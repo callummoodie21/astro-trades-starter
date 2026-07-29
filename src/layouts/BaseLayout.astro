@@ -1,0 +1,148 @@
+---
+import { site } from '@config';
+import { isDemo } from '@lib/site';
+import DemoNotice from '@components/DemoNotice.astro';
+import '../styles/global.css';
+
+/**
+ * The page shell: <head>, theme injection, structured data, and a slot for the
+ * page body.
+ *
+ * Astro pattern in play - a layout is just a component with a `<slot />`. The
+ * page imports it, wraps its content in it, and Astro renders the whole thing to
+ * static HTML at build time. Everything in this frontmatter block runs on the
+ * build machine and never reaches the browser.
+ */
+
+interface Props {
+  title?: string;
+  description?: string;
+  /**
+   * Keep this page out of search results. Used by /thanks and /404, which are
+   * dead ends for anyone who didn't arrive from the form or a bad link.
+   */
+  noindex?: boolean;
+}
+
+const { title, description, noindex = false } = Astro.props;
+
+const pageTitle = title ?? `${site.business.legalName} | ${site.business.tagline}`;
+const pageDescription = description ?? site.seo.description;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+/**
+ * One place decides indexing, so the rules can't end up contradicting each
+ * other in two different `<meta name="robots">` tags.
+ *
+ * Demo mode wins over everything: a fictional business should not be crawled at
+ * all, so it gets `nofollow` too. A page-level `noindex` keeps `follow`, because
+ * there's no reason to stop a crawler using the real links on a /thanks page.
+ */
+const robots = isDemo ? 'noindex, nofollow' : noindex ? 'noindex, follow' : null;
+
+/**
+ * The config's colours, written into `:root` as custom properties. Tailwind's
+ * utilities (defined in global.css) point at these, so this single block is what
+ * makes "change the config, re-skin the site" work.
+ *
+ * It's inlined into the head rather than imported so the colours are present on
+ * first paint - no flash of unstyled brand.
+ */
+const t = site.theme;
+const themeCss = `:root{--brand-primary:${t.primary};--brand-primary-dark:${t.primaryDark};--brand-primary-light:${t.primaryLight};--brand-accent:${t.accent};--brand-accent-text:${t.accentText};--brand-accent-surface:${t.accentSurface};--brand-accent-soft:${t.accentSoft};--brand-ink:${t.ink};--brand-muted:${t.muted};--brand-surface:${t.surface};--brand-surface-alt:${t.surfaceAlt};--brand-line:${t.line}}`;
+
+/**
+ * LocalBusiness structured data. This is the highest-leverage SEO on a trades
+ * site: it's what lets Google show the phone number, opening hours and address
+ * directly in the search result, which is where most of the calls come from.
+ *
+ * Which is exactly why demo mode omits it. On a fictional business it's not
+ * inert markup - it's a machine-readable assertion that a firm with this
+ * address, phone number and credentials exists.
+ */
+const schema = isDemo
+  ? null
+  : {
+      '@context': 'https://schema.org',
+      '@type': site.seo.schemaType,
+      name: site.business.legalName,
+      description: site.seo.description,
+      url: site.url,
+      telephone: site.business.phone.href,
+      email: site.business.email,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: [site.business.address.line1, site.business.address.line2]
+          .filter(Boolean)
+          .join(', '),
+        addressLocality: site.business.address.town,
+        addressRegion: site.business.address.region,
+        postalCode: site.business.address.postcode,
+        addressCountry: site.business.address.country,
+      },
+      areaServed: site.business.serviceAreas.map((area) => ({
+        '@type': 'Place',
+        name: area,
+      })),
+      makesOffer: site.services.items.map((service) => ({
+        '@type': 'Offer',
+        itemOffered: { '@type': 'Service', name: service.title },
+      })),
+    };
+---
+
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content={site.theme.primary} />
+    <meta name="generator" content={Astro.generator} />
+    {robots && <meta name="robots" content={robots} />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.business.legalName} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="en_GB" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <style is:inline set:html={themeCss}></style>
+
+    {
+      schema && (
+        <script
+          type="application/ld+json"
+          is:inline
+          set:html={JSON.stringify(schema)}
+        />
+      )
+    }
+
+    <!--
+      Named slot. A page can push extra tags into the head with
+      `<Fragment slot="head">…</Fragment>` - useful for per-page Open Graph
+      images or verification tags. The default (unnamed) `<slot />` in the body
+      takes the page content.
+    -->
+    <slot name="head" />
+  </head>
+
+  <body class="bg-surface text-ink">
+    <!--
+      Skip link: the first thing a keyboard or screen-reader user hits. Hidden
+      until focused, then it appears top-left. Cheap to add, and its absence is
+      one of the most common accessibility failures on small business sites.
+    -->
+    <a href="#main" class="sr-focusable">Skip to main content</a>
+
+    <DemoNotice />
+
+    <slot />
+  </body>
+</html>
