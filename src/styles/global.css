@@ -43,20 +43,24 @@
     Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
-:root {
-  --brand-primary: #0e3a47;
-  --brand-primary-dark: #082932;
-  --brand-primary-light: #17566a;
-  --brand-accent: #b87333;
-  --brand-accent-text: #8a5220;
-  --brand-accent-surface: #d08c46;
-  --brand-accent-soft: #f6eadc;
-  --brand-ink: #12212a;
-  --brand-muted: #4f626d;
-  --brand-surface: #ffffff;
-  --brand-surface-alt: #f3f6f7;
-  --brand-line: #dde4e7;
-}
+/*
+ * ⚠️ DO NOT ADD A `:root { --brand-* }` BLOCK TO THIS FILE.
+ *
+ * There used to be one here holding "fallback" colours. It silently broke the
+ * entire theming system, and the failure was invisible until someone changed
+ * the palette for the first time.
+ *
+ * Why: Astro emits this stylesheet's <link> AFTER the inline theme <style> that
+ * BaseLayout writes into the head. Both target `:root` with identical
+ * specificity, so the later one wins, meaning this file overrode site.config.ts
+ * for every colour on the site. It looked correct only because the fallbacks
+ * were a copy of the plumbing demo's own palette, so the first client with a
+ * different brand got the plumber's petrol and copper regardless of their
+ * config.
+ *
+ * The `--brand-*` values have exactly one source: `theme` in site.config.ts,
+ * injected by BaseLayout. If the colours are ever wrong, look there, not here.
+ */
 
 @layer base {
   html {
