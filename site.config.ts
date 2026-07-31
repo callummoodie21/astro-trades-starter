@@ -138,6 +138,20 @@ export const site: SiteConfig = {
     surfaceAlt: '#F3F6F7',
     line: '#DDE4E7',
     motif: 'pipe',
+
+    /**
+     * How the hero and reviews bands are painted.
+     *
+     *   'dark'  - solid blocks of `primary` with white text. Heavy and
+     *             reassuring, which is what a trades customer is looking for.
+     *   'light' - pale `accentSoft` surfaces with `ink` text, and `primary`
+     *             demoted to headings, buttons and the footer. Airy. Suits
+     *             salons, nails, beauty.
+     *
+     * Changing this one word re-paints both bands and picks the right button
+     * variants and icon colours to go with them. No component edits.
+     */
+    bands: 'dark',
   },
 
   seo: {

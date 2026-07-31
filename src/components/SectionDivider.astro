@@ -16,18 +16,22 @@ import type { MotifName } from '@lib/config-types';
 interface Props {
   /** Override the config default for a single divider if you want variety. */
   motif?: MotifName;
-  /** Set on dark backgrounds so the motif lightens instead of darkening. */
-  onDark?: boolean;
+  /**
+   * Set when the divider sits on a feature band (the hero or reviews section)
+   * rather than a normal page surface. It then uses the band's accent, which
+   * resolves correctly whether `theme.bands` is dark or light.
+   */
+  onBand?: boolean;
   class?: string;
 }
 
 const {
   motif = site.theme.motif,
-  onDark = false,
+  onBand = false,
   class: className = '',
 } = Astro.props;
 
-const tone = onDark ? 'text-accent-surface' : 'text-accent';
+const tone = onBand ? 'text-on-band-accent' : 'text-accent';
 ---
 
 {

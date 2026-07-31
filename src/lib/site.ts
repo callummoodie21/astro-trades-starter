@@ -15,6 +15,42 @@ import { site } from '@config';
  */
 export const isDemo = site.demo.enabled;
 
+/**
+ * Whether the feature bands (hero + reviews) are dark or light. Read straight
+ * from `theme.bands`, exposed here so components can branch on it without
+ * reaching into the config themselves.
+ */
+export const darkBands = site.theme.bands === 'dark';
+
+/**
+ * The four colours that differ between a dark and a light band.
+ *
+ * Everything else on a band works in both modes untouched, because the
+ * translucent utilities (`text-on-band/85`, `border-on-band/15`) blend towards
+ * whatever the band background happens to be. These four cannot: they need an
+ * actually different colour, not a different opacity of the same one.
+ *
+ * `BaseLayout` writes these into `:root` alongside the rest of the palette, and
+ * `global.css` maps them onto the `band`, `on-band`, `on-band-heading` and
+ * `on-band-accent` Tailwind colours.
+ *
+ * White is hardcoded here on purpose. It is structural rather than brand: on a
+ * dark band the text is white in every palette. Keeping it in `lib/` rather
+ * than a component preserves the rule that components hold no colour values.
+ */
+const WHITE = '#ffffff';
+
+export const bandTokens = {
+  /** The band's own background. */
+  band: darkBands ? site.theme.primary : site.theme.accentSoft,
+  /** Body text sitting on the band. */
+  onBand: darkBands ? WHITE : site.theme.ink,
+  /** Headings on the band. Light mode uses the brand colour for a bit of lift. */
+  onBandHeading: darkBands ? WHITE : site.theme.primary,
+  /** Icons and small marks on the band. These flip rather than fade. */
+  onBandAccent: darkBands ? site.theme.accentSurface : site.theme.accentText,
+};
+
 /** `tel:+447000000000` - the format phones actually dial reliably. */
 export const telHref = `tel:${site.business.phone.href}`;
 

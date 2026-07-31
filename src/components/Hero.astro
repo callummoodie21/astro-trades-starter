@@ -1,6 +1,6 @@
 ---
 import { site } from '@config';
-import { resolveHref } from '@lib/site';
+import { resolveHref, darkBands } from '@lib/site';
 import Button from './Button.astro';
 import Icon from './Icon.astro';
 
@@ -15,15 +15,24 @@ import Icon from './Icon.astro';
  * Set `hero.image` in the config and it switches to a photo background with a
  * gradient scrim, which keeps the headline above 4.5:1 no matter how bright the
  * image is. The pattern stays as the fallback.
+ *
+ * Dark or light is `theme.bands` in site.config.ts. The `band` / `on-band`
+ * colours resolve to the right thing either way, so nothing below hardcodes an
+ * assumption about which one is in play. The only two places that genuinely
+ * have to branch are the button variants, because "the strong button" is a
+ * filled accent on a dark band and a filled primary on a light one.
  */
 
 const { hero, business } = site;
 
 const areas = business.serviceAreas.slice(1, 4).join(', ');
 const primaryHref = resolveHref(hero.primaryCta.href);
+
+const ctaVariant = darkBands ? 'accent' : 'primary';
+const secondaryVariant = darkBands ? 'outline-light' : 'outline';
 ---
 
-<section class="relative isolate overflow-hidden bg-primary text-white">
+<section class="relative isolate overflow-hidden bg-band text-on-band">
   {
     hero.image ? (
       <>
@@ -36,7 +45,7 @@ const primaryHref = resolveHref(hero.primaryCta.href);
           decoding="async"
         />
         <div
-          class="absolute inset-0 -z-10 bg-gradient-to-br from-primary/95 via-primary/85 to-primary/70"
+          class="absolute inset-0 -z-10 bg-gradient-to-br from-band/95 via-band/85 to-band/70"
           aria-hidden="true"
         />
       </>
@@ -73,25 +82,27 @@ const primaryHref = resolveHref(hero.primaryCta.href);
     <div class="max-w-2xl">
       {
         business.credentials?.[0] && (
-          <p class="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-medium text-white ring-1 ring-white/20">
-            <Icon name="shield" class="h-4 w-4 text-accent-surface" strokeWidth={2} />
+          <p class="mb-6 inline-flex items-center gap-2 rounded-full bg-on-band/10 px-4 py-1.5 text-sm font-medium text-on-band ring-1 ring-on-band/20">
+            <Icon name="shield" class="h-4 w-4 text-on-band-accent" strokeWidth={2} />
             {business.credentials[0]}
           </p>
         )
       }
 
-      <h1 class="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+      <h1
+        class="text-4xl font-bold tracking-tight text-on-band-heading sm:text-5xl lg:text-6xl"
+      >
         {hero.headline}
       </h1>
 
-      <p class="mt-6 text-lg leading-relaxed text-white/90 sm:text-xl">
+      <p class="mt-6 text-lg leading-relaxed text-on-band/90 sm:text-xl">
         {hero.subheadline}
       </p>
 
       <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         <Button
           href={primaryHref}
-          variant="accent"
+          variant={ctaVariant}
           icon={hero.primaryCta.href === 'tel' ? 'phone' : undefined}
           block
           aria-label={hero.primaryCta.href === 'tel'
@@ -109,7 +120,7 @@ const primaryHref = resolveHref(hero.primaryCta.href);
           hero.secondaryCta && (
             <Button
               href={resolveHref(hero.secondaryCta.href)}
-              variant="outline-light"
+              variant={secondaryVariant}
               block
             >
               {hero.secondaryCta.label}
@@ -121,10 +132,10 @@ const primaryHref = resolveHref(hero.primaryCta.href);
       <ul class="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-7">
         {
           hero.points.map((point) => (
-            <li class="flex items-start gap-2.5 text-base text-white/90">
+            <li class="flex items-start gap-2.5 text-base text-on-band/90">
               <Icon
                 name="check"
-                class="mt-0.5 h-5 w-5 shrink-0 text-accent-surface"
+                class="mt-0.5 h-5 w-5 shrink-0 text-on-band-accent"
                 strokeWidth={2.5}
               />
               <span>{point}</span>
@@ -133,7 +144,7 @@ const primaryHref = resolveHref(hero.primaryCta.href);
         }
       </ul>
 
-      <p class="mt-9 border-t border-white/15 pt-6 text-sm text-white/70">
+      <p class="mt-9 border-t border-on-band/15 pt-6 text-sm text-on-band/70">
         Covering {business.address.town}, {areas} and the surrounding areas.
       </p>
     </div>

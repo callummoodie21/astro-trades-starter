@@ -1,6 +1,6 @@
 ---
 import { site } from '@config';
-import { isDemo } from '@lib/site';
+import { isDemo, bandTokens } from '@lib/site';
 import DemoNotice from '@components/DemoNotice.astro';
 import '../styles/global.css';
 
@@ -49,7 +49,8 @@ const robots = isDemo ? 'noindex, nofollow' : noindex ? 'noindex, follow' : null
  * first paint - no flash of unstyled brand.
  */
 const t = site.theme;
-const themeCss = `:root{--brand-primary:${t.primary};--brand-primary-dark:${t.primaryDark};--brand-primary-light:${t.primaryLight};--brand-accent:${t.accent};--brand-accent-text:${t.accentText};--brand-accent-surface:${t.accentSurface};--brand-accent-soft:${t.accentSoft};--brand-ink:${t.ink};--brand-muted:${t.muted};--brand-surface:${t.surface};--brand-surface-alt:${t.surfaceAlt};--brand-line:${t.line}}`;
+const b = bandTokens;
+const themeCss = `:root{--brand-primary:${t.primary};--brand-primary-dark:${t.primaryDark};--brand-primary-light:${t.primaryLight};--brand-accent:${t.accent};--brand-accent-text:${t.accentText};--brand-accent-surface:${t.accentSurface};--brand-accent-soft:${t.accentSoft};--brand-ink:${t.ink};--brand-muted:${t.muted};--brand-surface:${t.surface};--brand-surface-alt:${t.surfaceAlt};--brand-line:${t.line};--brand-band:${b.band};--brand-on-band:${b.onBand};--brand-on-band-heading:${b.onBandHeading};--brand-on-band-accent:${b.onBandAccent}}`;
 
 /**
  * LocalBusiness structured data. This is the highest-leverage SEO on a trades

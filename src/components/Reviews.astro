@@ -25,25 +25,28 @@ const { reviews } = site;
 
 <section
   id="reviews"
-  class="section-y bg-primary text-white"
+  class="section-y bg-band text-on-band"
   aria-labelledby="reviews-title"
 >
   <div class="wrap">
     <div class="mx-auto max-w-2xl text-center">
-      <h2 id="reviews-title" class="text-3xl font-bold tracking-tight sm:text-4xl">
+      <h2
+        id="reviews-title"
+        class="text-3xl font-bold tracking-tight text-on-band-heading sm:text-4xl"
+      >
         {reviews.title}
       </h2>
-      <p class="mt-4 text-lg leading-relaxed text-white/85">{reviews.intro}</p>
+      <p class="mt-4 text-lg leading-relaxed text-on-band/85">{reviews.intro}</p>
     </div>
 
-    <SectionDivider class="mt-10" onDark />
+    <SectionDivider class="mt-10" onBand />
 
     <ul class="mt-10 gap-6 sm:columns-2 lg:columns-3">
       {
         reviews.items.map((review) => {
           const rating = review.rating ?? 5;
           return (
-            <li class="mb-6 break-inside-avoid rounded-xl bg-surface p-6 text-ink shadow-sm">
+            <li class="mb-6 break-inside-avoid rounded-xl border border-line bg-surface p-6 text-ink shadow-sm">
               <p
                 class="flex gap-0.5 text-accent"
                 role="img"

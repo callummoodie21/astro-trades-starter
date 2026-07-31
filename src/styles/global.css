@@ -10,11 +10,12 @@
  *    properties, so `bg-primary`, `text-accent-text`, `border-line` and friends
  *    all resolve to whatever the config said.
  *
- * The win: components only ever name a *role* ("primary", "muted"), never a hex
- * value. Re-skinning a client is a config edit, not a find-and-replace.
+ * The win: components only ever name a *role* ("primary", "muted", "on-band"),
+ * never a hex value. Re-skinning a client is a config edit, not a
+ * find-and-replace.
  *
- * The `:root` block after `@theme` holds fallbacks, so the site is still legible
- * if the layout's injected style ever fails to render.
+ * There is deliberately no `:root` fallback block in this file. See the warning
+ * below the `@theme` block for why adding one breaks everything.
  */
 
 @theme {
@@ -26,6 +27,17 @@
   --color-accent-text: var(--brand-accent-text);
   --color-accent-surface: var(--brand-accent-surface);
   --color-accent-soft: var(--brand-accent-soft);
+
+  /*
+   * The feature bands (hero + reviews). These four resolve differently
+   * depending on `theme.bands` in site.config.ts, which is what lets one set of
+   * components serve both a dark trades site and a light salon site.
+   * See `bandTokens` in src/lib/site.ts.
+   */
+  --color-band: var(--brand-band);
+  --color-on-band: var(--brand-on-band);
+  --color-on-band-heading: var(--brand-on-band-heading);
+  --color-on-band-accent: var(--brand-on-band-accent);
 
   --color-ink: var(--brand-ink);
   --color-muted: var(--brand-muted);

@@ -34,6 +34,23 @@ export type IconName =
 export type MotifName = 'pipe' | 'wave' | 'chevron' | 'rule' | 'none';
 
 /**
+ * How the feature bands (the hero and the reviews section) are painted.
+ *
+ * `'dark'` - a solid block of `primary` carrying white text. Heavy and
+ *   reassuring. Suits trades, where the job is to look established and safe.
+ *
+ * `'light'` - a pale `accentSoft` surface carrying `ink` text, with `primary`
+ *   demoted to the dark anchors (headings, buttons, icon tiles, footer). Airy.
+ *   Suits salons, nails, beauty, anything where "clean and calm" beats "solid".
+ *
+ * This is a single switch rather than a set of colours because the two modes
+ * need different foreground colours for the same elements. Picking the mode
+ * here lets the components stay shared instead of every light-brand client
+ * needing its own edited copy of Hero.astro and Reviews.astro.
+ */
+export type BandStyle = 'dark' | 'light';
+
+/**
  * schema.org business type, used for the LocalBusiness structured data in the
  * page head. Picking an accurate one helps Google show opening hours, phone and
  * reviews directly in search results.
@@ -47,6 +64,7 @@ export type SchemaBusinessType =
   | 'HomeAndConstructionBusiness'
   | 'HairSalon'
   | 'BeautySalon'
+  | 'NailSalon'
   | 'LocalBusiness';
 
 export interface Phone {
@@ -134,6 +152,12 @@ export interface Theme {
   line: string;
   /** Which section divider to draw. */
   motif: MotifName;
+  /**
+   * Dark or light feature bands (hero + reviews). See `BandStyle` above.
+   * Required rather than defaulted, because it is a real design decision per
+   * client and silently inheriting the wrong one is easy to miss.
+   */
+  bands: BandStyle;
 }
 
 /**
