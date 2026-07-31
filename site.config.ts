@@ -173,7 +173,7 @@ export const site: SiteConfig = {
   services: {
     title: 'What we do',
     intro:
-      'Domestic plumbing and heating across East Kilbride and the surrounding villages. No job too small - a dripping tap is as welcome as a full bathroom.',
+      'Domestic plumbing and heating across East Kilbride and the surrounding areas. No job too small - a dripping tap is as welcome as a full bathroom.',
     items: [
       {
         title: 'Emergency repairs',
